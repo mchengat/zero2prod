@@ -4,33 +4,33 @@ on:
   push:
     branches:
       - main
-    pull_request:
-      types: [opened, synchronize, reopened]
-      branches:
-        - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
-  env:
-    CARGO_TERM_COLOR: always
-    SQLX_VERSION: 0.8.0
-    SQLX_FEATURES: "rustls,postgres"
-    APP_USER: app
-    APP_USER_PWD: secret
-    APP_DB_NAME: newsletter
+env:
+  CARGO_TERM_COLOR: always
+  SQLX_VERSION: 0.8.0
+  SQLX_FEATURES: "rustls,postgres"
+  APP_USER: app
+  APP_USER_PWD: secret
+  APP_DB_NAME: newsletter
 
-  jobs:
-    test:
-      name: Test
-      runs-on: ubuntu-latest
-      services:
-        postgres:
-          image: postgres:14
-          env:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: password
-            POSTGRES_DB: postgres
-          ports:
-            - 5432:5432
-      steps:
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+    steps:
         - name: Checkout the repository
           uses: actions/checkout@v4
 
@@ -64,22 +64,22 @@ on:
         - name: Check that queries are fresh
           run: cargo sqlx prepare --workspace --check -- --all-targets
 
-    fmt:
-      name: Rustfmt
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - name: Install the Rust toolchain
-          uses: actions-rust-lang/setup-rust-toolchain@v1
-          with:
-            components: rustfmt
-        - name: Enforce formatting
-          run: cargo fmt --check
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt
+      - name: Enforce formatting
+        run: cargo fmt --check
 
-    clippy:
-      name: Clippy
-      runs-on: ubuntu-latest
-      env:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    env:
         # This environment variable forces sqlx to use its offline mode,
         # which means that it will not attempt to connect to a database
         # when running the tests. It'll instead use the cached query results.
@@ -87,28 +87,28 @@ on:
         # to speed up the overall CI pipeline.
         # This will all be covered in detail in chapter 5.
         SQLX_OFFLINE: true
-      steps:
-        - uses: actions/checkout@v4
-        - name: Install the Rust toolchain
-          uses: actions-rust-lang/setup-rust-toolchain@v1
-          with:
-            components: clippy
-        - name: Linting
-          run: cargo clippy -- -D warnings
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy
+      - name: Linting
+        run: cargo clippy -- -D warnings
 
-    coverage:
-      name: Code coverage
-      runs-on: ubuntu-latest
-      services:
-        postgres:
-          image: postgres:14
-          env:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: password
-            POSTGRES_DB: postgres
-          ports:
+  coverage:
+    name: Code coverage
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
+        ports:
             - 5432:5432
-      steps:
+    steps:
         - uses: actions/checkout@v4
         - name: Install the Rust toolchain
           uses: actions-rust-lang/setup-rust-toolchain@v1
