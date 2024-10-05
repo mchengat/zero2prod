@@ -59,7 +59,6 @@ async fn subscriber_returns_a_200_for_valid_form_data() {
 async fn subscriber_returns_a_400_when_data_is_missing() {
     let app_address = spawn_app();
     let client = reqwest::Client::new();
-    let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
 
     let test_cases = vec![
         ("name=le%20guin", "missing the email"),
